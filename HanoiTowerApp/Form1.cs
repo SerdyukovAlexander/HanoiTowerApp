@@ -1,19 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TextBox = System.Windows.Forms.TextBox;
+
 
 namespace HanoiTowerApp
 {
     public partial class Form1 : Form
     {
-        private int numberOfDisks = 4; // Количество дисков
+        private int numberOfDisks = 0; // Количество дисков
         private Stack<int>[] rods; // Стержни
         private int movesMade = 0;
         private int movingDisk = -1; // Переменная для отслеживания перемещаемого диска
         private int movingDiskX; // X позиция перемещаемого диска
         private int movingDiskY; // Y позиция перемещаемого диска
+
 
         public Form1()
         {
@@ -34,6 +39,12 @@ namespace HanoiTowerApp
 
             // Настройка формы
             this.Paint += new PaintEventHandler(Form1_Paint);
+
+            textBox1.Text = "количество дисков";
+            textBox1.ForeColor = Color.Gray;
+
+            textBox1.GotFocus += RemoveText;
+            textBox1.LostFocus += AddText;
         }
         
 
@@ -125,10 +136,58 @@ namespace HanoiTowerApp
 
         private async void buttonMove_Click(object sender, EventArgs e)
         {
-            // Решение задачи при нажатии на кнопку
-            movesMade = 0;
-            await SolveHanoi(numberOfDisks, 0, 2, 1);
-            MessageBox.Show($"Сделано движений: {movesMade}");
+            // Проверяем, что введенное значение является числом
+            if (int.TryParse(textBox1.Text, out int newNumberOfDisks) && newNumberOfDisks > 0)
+            {
+                // Обновляем количество дисков
+                numberOfDisks = newNumberOfDisks;
+
+                // Переинициализация стержней
+                rods = new Stack<int>[3];
+                for (int i = 0; i < 3; i++)
+                {
+                    rods[i] = new Stack<int>();
+                }
+
+                // Заполнение первого стержня новыми дисками
+                for (int i = numberOfDisks; i > 0; i--)
+                {
+                    rods[0].Push(i);
+                }
+
+                movesMade = 0;  // Сбрасываем счетчик движений
+                await SolveHanoi(numberOfDisks, 0, 2, 1); // Запуск решения задачи Ханоя
+                MessageBox.Show($"Сделано движений: {movesMade}");
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, введите положительное число дисков."); // Сообщение об ошибке
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RemoveText(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox.Text == "количество дисков")
+            {
+                textBox.Text = "";
+                textBox.ForeColor = Color.Black;
+            }
+        }
+
+        private void AddText(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                textBox.Text = "количество дисков";
+                textBox.ForeColor = Color.Gray;
+            }
         }
     }
 }
