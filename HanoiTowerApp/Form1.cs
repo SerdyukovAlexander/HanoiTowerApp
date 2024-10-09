@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System;
 
 namespace HanoiTowerApp
 {
     public partial class Form1 : Form
     {
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private int numberOfDisks = 5; // Количество дисков
+        private int numberOfDisks = 4; // Количество дисков
         private Stack<int>[] rods; // Стержни
         private int movesMade = 0;
+        private int movingDisk = -1; // Переменная для отслеживания перемещаемого диска
+        private int movingDiskX; // X позиция перемещаемого диска
+        private int movingDiskY; // Y позиция перемещаемого диска
 
         public Form1()
         {
@@ -41,10 +35,16 @@ namespace HanoiTowerApp
             // Настройка формы
             this.Paint += new PaintEventHandler(Form1_Paint);
         }
+        
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             DrawRods(e.Graphics);
+            if (movingDisk >= 0)
+            {
+                // Отрисовываем перемещаемый диск
+                e.Graphics.FillRectangle(Brushes.Gray, movingDiskX, movingDiskY, movingDisk * 20, 12);
+            }
         }
 
         private void DrawRods(Graphics graphics)
@@ -71,33 +71,63 @@ namespace HanoiTowerApp
             }
         }
 
-        private void MoveDisk(int fromRod, int toRod)
+        private async Task MoveDiskWithAnimation(int fromRod, int toRod)
         {
-            // Перемещение диска
+            // Перемещение диска с анимацией
             if (rods[fromRod].Count > 0)
             {
                 int disk = rods[fromRod].Pop();
+                int targetX = (toRod * 150 + 100) - disk * 10; // Получить целевую позицию X для диска
+                int fromX = (fromRod * 150 + 100) - disk * 10; // Начальная позиция X для диска
+                movingDiskX = fromX; // Установить начальную позицию перемещаемого диска
+                int y = 180; // Начальная вертикальная позиция
+                movingDiskY = y; // Запоминаем Y для перемещения
+
+                // Устанавливаем перемещаемый диск для отрисовки
+                movingDisk = disk;
+
+                // Анимация перемещения диска
+                for (int i = 0; i < 20; i++)
+                {
+                    y -= 5; // Поднимаем диск
+                    movingDiskY = y;
+                    this.Invalidate(); // Перерисовываем форму
+                    await Task.Delay(30); // Задержка для анимации
+                }
+
+                movingDiskX = targetX; // Устанавливаем конечную позицию по X
+
+                for (int i = 0; i < 20; i++)
+                {
+                    y += 5; // Опускаем диск
+                    movingDiskY = y;
+                    this.Invalidate(); // Перерисовываем форму
+                    await Task.Delay(30); // Задержка для анимации
+                }
+
+                // Обновляем расположение диска на роде
                 rods[toRod].Push(disk);
                 movesMade++;
-                this.Invalidate(); // Перерисовка формы
+                movingDisk = -1; // Сбрасываем перемещаемый диск
+                this.Invalidate(); // Окончательная перерисовка
             }
         }
 
-        private void SolveHanoi(int n, int fromRod, int toRod, int tempRod)
+        private async Task SolveHanoi(int n, int fromRod, int toRod, int tempRod)
         {
             if (n > 0)
             {
-                SolveHanoi(n - 1, fromRod, tempRod, toRod);
-                MoveDisk(fromRod, toRod);
-                SolveHanoi(n - 1, tempRod, toRod, fromRod);
+                await SolveHanoi(n - 1, fromRod, tempRod, toRod);
+                await MoveDiskWithAnimation(fromRod, toRod);
+                await SolveHanoi(n - 1, tempRod, toRod, fromRod);
             }
         }
 
-        private void buttonMove_Click(object sender, EventArgs e)
+        private async void buttonMove_Click(object sender, EventArgs e)
         {
             // Решение задачи при нажатии на кнопку
             movesMade = 0;
-            SolveHanoi(numberOfDisks, 0, 2, 1);
+            await SolveHanoi(numberOfDisks, 0, 2, 1);
             MessageBox.Show($"Сделано движений: {movesMade}");
         }
     }
