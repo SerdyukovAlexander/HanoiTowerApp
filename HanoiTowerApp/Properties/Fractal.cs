@@ -39,7 +39,6 @@ namespace HanoiTowerApp.Properties
             // Проверяем, что введенное значение является числом
             if (int.TryParse(textBox1.Text, out int newMaxDepth) && newMaxDepth > 0)
             {
-                // Обновляем количество дисков
                 maxDepth = newMaxDepth;
             }
             
