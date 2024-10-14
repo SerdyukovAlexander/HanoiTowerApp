@@ -25,6 +25,7 @@ namespace HanoiTowerApp
         public Form1()
         {
             InitializeComponent();
+            this.DoubleBuffered = true; // Включение двойной буферизации
 
             // Создаем и настраиваем кнопку остановки
             buttonStop = new Button();
@@ -32,14 +33,14 @@ namespace HanoiTowerApp
             buttonStop.Location = new Point(253, 500); // Установите нужные координаты
             buttonStop.Click += ButtonStop_Click;
             this.Controls.Add(buttonStop);
-        
+    
             // Инициализация стержней и прочее...
             rods = new Stack<int>[3];
             for (int i = 0; i < 3; i++)
             {
                 rods[i] = new Stack<int>();
             }
-        
+    
             // Заполнение первого стержня дисками
             for (int i = numberOfDisks; i > 0; i--)
             {
