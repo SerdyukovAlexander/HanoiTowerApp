@@ -9,11 +9,13 @@ namespace HanoiTowerApp.Properties
         private int currentDepth = 0; // Текущий уровень рекурсии
         private int maxDepth = 0; // Максимальный уровень рекурсии
         private Timer timer;
+        
         public Fractal()
         {
             InitializeComponent();
             this.Paint += new PaintEventHandler(Fractal_Paint);
             CreateBuildButton();
+            CreateStopButton(); // Создание кнопки остановки
             InitializeTimer();
         }
         
@@ -25,6 +27,16 @@ namespace HanoiTowerApp.Properties
             Controls.Add(buildButton);
         }
         
+        // Новый метод для создания кнопки остановки
+        private void CreateStopButton()
+        {
+            Button stopButton = new Button();
+            stopButton.Text = "Остановить";
+            stopButton.Click += new EventHandler(StopButton_Click);
+            stopButton.Location = new Point(0, 75);
+            Controls.Add(stopButton);
+        }
+
         private void InitializeTimer()
         {
             timer = new Timer();
@@ -41,7 +53,6 @@ namespace HanoiTowerApp.Properties
             {
                 maxDepth = newMaxDepth;
             }
-            
             else
             {
                 MessageBox.Show("Пожалуйста, введите натуральное максимальное число рекурсии."); // Сообщение об ошибке
@@ -49,6 +60,12 @@ namespace HanoiTowerApp.Properties
             
             this.Invalidate(); // Перерисовка формы
             timer.Start(); // Запуск таймера
+        }
+
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+            timer.Stop();
+            currentDepth = 0;
         }
         
         private void Timer_Tick(object sender, EventArgs e)

@@ -37,7 +37,7 @@ namespace HanoiTowerApp.Properties
             // 
             // textBox1
             // 
-            this.textBox1.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.textBox1.BackColor = System.Drawing.Color.GhostWhite;
             this.textBox1.Location = new System.Drawing.Point(-1, 50);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(157, 20);
@@ -46,7 +46,7 @@ namespace HanoiTowerApp.Properties
             // 
             // textBox2
             // 
-            this.textBox2.BackColor = System.Drawing.Color.AliceBlue;
+            this.textBox2.BackColor = System.Drawing.Color.LightGray;
             this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBox2.Location = new System.Drawing.Point(-1, 26);
             this.textBox2.Name = "textBox2";
@@ -58,7 +58,7 @@ namespace HanoiTowerApp.Properties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.AliceBlue;
+            this.BackColor = System.Drawing.Color.LightGray;
             this.ClientSize = new System.Drawing.Size(1280, 627);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);

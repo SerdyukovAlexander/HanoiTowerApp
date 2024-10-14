@@ -23,8 +23,8 @@
         #region Код, автоматически созданный конструктором форм Windows
 
         /// <summary>
-        /// Требуемый метод для поддержки конструктора — не изменяйте 
-        /// содержимое этого метода с помощью редактора кода.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
@@ -34,7 +34,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(200, 380);
+            this.button1.Location = new System.Drawing.Point(242, 402);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(97, 29);
             this.button1.TabIndex = 0;
@@ -42,11 +42,11 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.buttonMove_Click);
             // 
-            // numberOfDisks
+            // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(190, 432);
-            this.textBox1.Name = "numberOfDisks";
-            this.textBox1.Size = new System.Drawing.Size(107, 20);
+            this.textBox1.Location = new System.Drawing.Point(232, 462);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(117, 20);
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = "количество дисков";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -56,7 +56,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(516, 463);
+            this.BackColor = System.Drawing.Color.LightGray;
+            this.ClientSize = new System.Drawing.Size(600, 564);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
             this.Name = "Form1";

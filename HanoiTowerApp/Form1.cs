@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Button = System.Windows.Forms.Button;
 using TextBox = System.Windows.Forms.TextBox;
 
 
@@ -18,19 +19,27 @@ namespace HanoiTowerApp
         private int movingDisk = -1; // Переменная для отслеживания перемещаемого диска
         private int movingDiskX; // X позиция перемещаемого диска
         private int movingDiskY; // Y позиция перемещаемого диска
-
+        private Button buttonStop; // Кнопка остановки
+        private CancellationTokenSource cancellationTokenSource; // Токен отмены
 
         public Form1()
         {
             InitializeComponent();
 
-            // Инициализация стержней
+            // Создаем и настраиваем кнопку остановки
+            buttonStop = new Button();
+            buttonStop.Text = "Остановить";
+            buttonStop.Location = new Point(253, 500); // Установите нужные координаты
+            buttonStop.Click += ButtonStop_Click;
+            this.Controls.Add(buttonStop);
+        
+            // Инициализация стержней и прочее...
             rods = new Stack<int>[3];
             for (int i = 0; i < 3; i++)
             {
                 rods[i] = new Stack<int>();
             }
-
+        
             // Заполнение первого стержня дисками
             for (int i = numberOfDisks; i > 0; i--)
             {
@@ -54,7 +63,7 @@ namespace HanoiTowerApp
             if (movingDisk >= 0)
             {
                 // Отрисовываем перемещаемый диск
-                e.Graphics.FillRectangle(Brushes.Gray, movingDiskX, movingDiskY, movingDisk * 20, 12);
+                e.Graphics.FillRectangle(Brushes.LightSlateGray, movingDiskX, movingDiskY, movingDisk * 20, 12);
             }
         }
 
@@ -62,44 +71,44 @@ namespace HanoiTowerApp
         {
             // Определение позиций стержней
             int rodWidth = 10;
-            int rodHeight = 100;
+            int rodHeight = 150;
             int baseHeight = 300;
-            int spacing = 150;
+            int spacing = 200; // Увеличено расстояние между стержнями
 
             // Отрисовка стержней
             for (int i = 0; i < rods.Length; i++)
             {
-                int x = i * spacing + 100;
+                int x = i * spacing + 100; // Вычисление позиции X для каждого стержня
                 graphics.FillRectangle(Brushes.Black, x - rodWidth / 2, baseHeight - rodHeight, rodWidth, rodHeight);
 
                 // Отрисовка дисков
-                int diskOffset = 0;
+                int diskOffset = 0; // Смещение для отрисовки дисков
                 foreach (var disk in rods[i])
                 {
                     graphics.FillRectangle(Brushes.Gray, x - disk * 10, baseHeight - rodHeight + diskOffset - 10, disk * 20, 12);
-                    diskOffset += 20;
+                    diskOffset += 20; // Увеличиваем смещение для следующего диска
                 }
             }
         }
 
-        private async Task MoveDiskWithAnimation(int fromRod, int toRod)
+        private async Task MoveDiskWithAnimation(int fromRod, int toRod, CancellationToken cancellationToken)
         {
-            // Перемещение диска с анимацией
             if (rods[fromRod].Count > 0)
             {
                 int disk = rods[fromRod].Pop();
-                int targetX = (toRod * 150 + 100) - disk * 10; // Получить целевую позицию X для диска
-                int fromX = (fromRod * 150 + 100) - disk * 10; // Начальная позиция X для диска
+                int targetX = (toRod * 200 + 100) - disk * 10; // Изменено расстояние между стержнями
+                int fromX = (fromRod * 200 + 100) - disk * 10; // Изменено расстояние между стержнями
                 movingDiskX = fromX; // Установить начальную позицию перемещаемого диска
-                int y = 180; // Начальная вертикальная позиция
+                int y = 130; // Начальная вертикальная позиция
                 movingDiskY = y; // Запоминаем Y для перемещения
 
-                // Устанавливаем перемещаемый диск для отрисовки
                 movingDisk = disk;
 
                 // Анимация перемещения диска
                 for (int i = 0; i < 20; i++)
                 {
+                    // Проверяем отмену
+                    cancellationToken.ThrowIfCancellationRequested();
                     y -= 5; // Поднимаем диск
                     movingDiskY = y;
                     this.Invalidate(); // Перерисовываем форму
@@ -110,13 +119,14 @@ namespace HanoiTowerApp
 
                 for (int i = 0; i < 20; i++)
                 {
+                    // Проверяем отмену
+                    cancellationToken.ThrowIfCancellationRequested();
                     y += 5; // Опускаем диск
                     movingDiskY = y;
                     this.Invalidate(); // Перерисовываем форму
                     await Task.Delay(30); // Задержка для анимации
                 }
 
-                // Обновляем расположение диска на роде
                 rods[toRod].Push(disk);
                 movesMade++;
                 movingDisk = -1; // Сбрасываем перемещаемый диск
@@ -124,13 +134,13 @@ namespace HanoiTowerApp
             }
         }
 
-        private async Task SolveHanoi(int n, int fromRod, int toRod, int tempRod)
+        private async Task SolveHanoi(int n, int fromRod, int toRod, int tempRod, CancellationToken cancellationToken)
         {
             if (n > 0)
             {
-                await SolveHanoi(n - 1, fromRod, tempRod, toRod);
-                await MoveDiskWithAnimation(fromRod, toRod);
-                await SolveHanoi(n - 1, tempRod, toRod, fromRod);
+                await SolveHanoi(n - 1, fromRod, tempRod, toRod, cancellationToken);
+                await MoveDiskWithAnimation(fromRod, toRod, cancellationToken);
+                await SolveHanoi(n - 1, tempRod, toRod, fromRod, cancellationToken);
             }
         }
 
@@ -155,8 +165,9 @@ namespace HanoiTowerApp
                     rods[0].Push(i);
                 }
 
-                movesMade = 0;  // Сбрасываем счетчик движений
-                await SolveHanoi(numberOfDisks, 0, 2, 1); // Запуск решения задачи Ханоя
+                movesMade = 0; // Сбрасываем счетчик движений
+                cancellationTokenSource = new CancellationTokenSource(); // Инициализируем токен отмены
+                await SolveHanoi(numberOfDisks, 0, 2, 1, cancellationTokenSource.Token); // Запуск решения задачи Ханоя
                 MessageBox.Show($"Сделано движений: {movesMade}");
             }
             else
@@ -168,6 +179,11 @@ namespace HanoiTowerApp
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+        
+        private void ButtonStop_Click(object sender, EventArgs e)
+        {
+            cancellationTokenSource?.Cancel(); // Отменить выполнение задач
         }
 
         private void RemoveText(object sender, EventArgs e)
