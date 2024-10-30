@@ -9,8 +9,7 @@ namespace HanoiTowerApp.Properties
         private int currentDepth = 0; // Текущий уровень рекурсии
         private int maxDepth = 0; // Максимальный уровень рекурсии
         private Timer timer;
-        
-        // Новые переменные для зума
+        //переменные для зума
         private float zoomFactor = 1.0f;
         private const float zoomStep = 0.1f; // Шаг зума
         private float offsetX = 0; // Смещение по оси X
@@ -128,7 +127,7 @@ namespace HanoiTowerApp.Properties
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            // Обработка текста (если необходимо)
+            
         }
         
         private void CreateBuildButton()
