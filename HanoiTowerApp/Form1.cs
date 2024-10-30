@@ -106,40 +106,54 @@ namespace HanoiTowerApp
 
         private async Task MoveDiskWithAnimation(int fromRod, int toRod, CancellationToken cancellationToken)
         {
-            if (rods[fromRod].Count > 0)
+            try
             {
-                int disk = rods[fromRod].Pop();
-                int targetX = (toRod * 200 + 100) - disk * 10;
-                int fromX = (fromRod * 200 + 100) - disk * 10;
-                movingDiskX = fromX;
-                int y = 130;
-                movingDiskY = y;
-                movingDisk = disk;
-
-                for (int i = 0; i < 20; i++)
+                if (rods[fromRod].Count > 0)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    y -= 5; // Поднимаем диск
+                    int disk = rods[fromRod].Pop();
+                    int targetX = (toRod * 200 + 100) - disk * 10;
+                    int fromX = (fromRod * 200 + 100) - disk * 10;
+                    movingDiskX = fromX;
+                    int y = 130;
                     movingDiskY = y;
-                    this.Invalidate(); // Перерисовываем форму
-                    await Task.Delay(30);
-                }
-                movingDiskX = targetX; // Устанавливаем конечную позицию по X
-                for (int i = 0; i < 20; i++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    y += 5; // Опускаем диск
-                    movingDiskY = y;
-                    this.Invalidate(); // Перерисовываем форму
-                    await Task.Delay(30);
-                }
+                    movingDisk = disk;
 
-                rods[toRod].Push(disk);
-                movesMade++;
-                movingDisk = -1;
-                this.Invalidate();
+                    for (int i = 0; i < 20; i++)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        y -= 5; // Поднимаем диск
+                        movingDiskY = y;
+                        this.Invalidate(); // Перерисовываем форму
+                        await Task.Delay(30);
+                    }
+                    movingDiskX = targetX; // Устанавливаем конечную позицию по X
+                    for (int i = 0; i < 20; i++)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        y += 5; // Опускаем диск
+                        movingDiskY = y;
+                        this.Invalidate(); // Перерисовываем форму
+                        await Task.Delay(30);
+                    }
 
-                await Task.Delay(100); // Задержка для предотвращения слишком быстрого счета движений
+                    rods[toRod].Push(disk);
+                    movesMade++;
+                    movingDisk = -1;
+                    this.Invalidate();
+
+                    await Task.Delay(100); // Задержка для предотвращения слишком быстрого счета движений
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Обработка отмены, если операция была отменена
+                movingDisk = -1; // Сбрасываем перемещаемый диск
+                this.Invalidate(); // Перерисовываем форму, чтобы убрать диск
+            }
+            catch (Exception ex)
+            {
+                // Логируем или обрабатываем другие исключения
+                MessageBox.Show($"Произошла ошибка: {ex.Message}");
             }
         }
 
