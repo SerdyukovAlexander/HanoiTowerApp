@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
@@ -37,7 +38,10 @@ namespace HanoiTowerApp
                 ChartType = SeriesChartType.Line
             });
             chart.ChartAreas["MainArea"].AxisX.Title = "Количество дисков";
-            chart.ChartAreas["MainArea"].AxisY.Title = "Время (мс)";
+            chart.ChartAreas["MainArea"].AxisX.LineWidth = 1;
+            chart.ChartAreas["MainArea"].AxisY.Title = "Время (c)";
+            chart.ChartAreas["MainArea"].AxisY.LineWidth = 1;
+            chart.ChartAreas["MainArea"].AxisY.LabelStyle.Format = "0.000";
             chart.Series["TimeSeries"].BorderWidth = 2;
             chart.Series["TimeSeries"].Color = Color.Gray;
             this.Controls.Add(chart);
@@ -166,12 +170,26 @@ namespace HanoiTowerApp
                 await SolveHanoi(n - 1, tempRod, toRod, fromRod, cancellationToken);
             }
         }
-
-        private void PoinsAdd(int cntDisks)
+        
+        private double SolveHanoiTime(int n, int fromRod, int toRod, int tempRod)
         {
-            for (int i = 1; i < cntDisks; i++)
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            if (n > 0)
             {
-                chart.Series["TimeSeries"].Points.AddXY(i,  (Math.Pow(i, 2) - 1)*1000);
+                SolveHanoiTime(n - 1, fromRod, tempRod, toRod);
+                SolveHanoiTime(n - 1, tempRod, toRod, fromRod);
+            }
+            stopwatch.Stop();
+            double executionTime = stopwatch.Elapsed.TotalMilliseconds;
+            return executionTime;
+        }
+
+        private void PoinsAdd()
+        {
+            for (int i = 1; i <= numberOfDisks; i++)
+            {
+                double executionTime = SolveHanoiTime(i, 0, 2, 1);
+                chart.Series["TimeSeries"].Points.AddXY(i,  executionTime);
             }
         }
 
@@ -181,8 +199,7 @@ namespace HanoiTowerApp
             {
                 numberOfDisks = newNumberOfDisks;
                 chart.Series["TimeSeries"].Points.Clear();
-                PoinsAdd(numberOfDisks);
-
+                PoinsAdd();
                 rods = new Stack<int>[3];
                 for (int i = 0; i < 3; i++)
                 {
